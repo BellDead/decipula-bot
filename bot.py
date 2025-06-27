@@ -776,16 +776,11 @@ async def update_common_areas(ctx, channel_type: str, *, channel_names: str):
     except Exception as e:
         await ctx.send(f"❌ Hata: {e}\n\nKullanım: `!ortak-alanlar-güncelle text genel-sohbet, duyurular, yardım`")
 
-@bot.command(name="testmenu")
+@bot.command(name="roller")
 @commands.has_permissions(administrator=True)
-async def test_menu_command(ctx):
-    print("DEBUG: testmenu komutu çağrıldı")
+async def roller_command(ctx):
+    print("DEBUG: roller komutu çağrıldı")
     try:
-        channel = discord.utils.get(ctx.guild.text_channels, name="rol-alma")
-        if not channel:
-            await ctx.send("'rol-alma' adında bir kanal bulunamadı.")
-            print("DEBUG: 'rol-alma' kanalı bulunamadı")
-            return
         embed = discord.Embed(
             title="Hangi oyunları oynamak istersin?",
             description="Aşağıdaki menüden istediğin oyunları seçebilirsin. Seçtiğin oyunların rolleri otomatik olarak verilecektir.",
@@ -793,11 +788,10 @@ async def test_menu_command(ctx):
         )
         embed.set_footer(text="Birden fazla oyun seçebilirsin!")
         view = GameSelectView(ctx.author)
-        await channel.send(embed=embed, view=view)
-        await ctx.send("Menü #rol-alma kanalına gönderildi!")
+        await ctx.send(embed=embed, view=view)
         print("DEBUG: Menü gönderildi!")
     except Exception as e:
-        print(f"❌ testmenu komutunda hata: {e}")
+        print(f"❌ roller komutunda hata: {e}")
 
 # Sunucu kanalında menüyü gönderen komut
 def get_welcome_embed():
