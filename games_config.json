@@ -1,5 +1,18 @@
 {
-    "games": {},
+    "games": {
+        "Minecraft": {
+            "role": "Minecraft",
+            "text_channels": ["minecraft-chat"],
+            "voice_channels": ["minecraft-voice"],
+            "emoji": "⛏️"
+        },
+        "LoL": {
+            "role": "LoL",
+            "text_channels": ["lol-chat"],
+            "voice_channels": ["lol-voice"],
+            "emoji": "🦁"
+        }
+    },
     "common_areas": {
         "text_channels": ["genel-sohbet", "duyurular", "yardım"],
         "voice_channels": ["Genel Ses"]
