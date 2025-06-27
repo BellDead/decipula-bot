@@ -76,18 +76,63 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
     """
-    Sunucuya yeni birisi katıldığında, sadece bilgi amaçlı DM gönderilecek. Oyun seçimi için #rol-alma kanalında menü olacak.
+    Sunucuya yeni birisi katıldığında, DM'den oyun listesini ve talimatı gönderir. Kullanıcıdan DM'de cevap bekler ve rolleri verir.
     """
     try:
-        # DM'den bilgi mesajı gönder
-        try:
+        # Oyun listesini hazırla
+        oyunlar = list(games_config.keys())
+        oyun_listesi = "\n".join([f"{i+1}. {oyun}" for i, oyun in enumerate(oyunlar)])
+        talimat = (
+            f"Hoş geldin {member.name}!\n\n"
+            "Hangi oyunların rollerini almak istersin?\n"
+            "Lütfen aşağıdaki oyunlardan istediklerinin numarasını veya adını yaz (virgül ile ayırabilirsin):\n\n"
+            f"{oyun_listesi}\n\n"
+            "Örnek: 1,3 veya Minecraft, Valorant\n"
+        )
+        await member.send(talimat)
+
+        def check(m):
+            return m.author == member and isinstance(m.channel, discord.DMChannel)
+
+        msg = await bot.wait_for('message', check=check, timeout=180)
+        cevap = msg.content.strip()
+        secilenler = set()
+        # Numara ile seçim
+        for parca in cevap.split(','):
+            parca = parca.strip()
+            if parca.isdigit():
+                idx = int(parca) - 1
+                if 0 <= idx < len(oyunlar):
+                    secilenler.add(oyunlar[idx])
+            else:
+                # İsimle seçim
+                for oyun in oyunlar:
+                    if parca.lower() == oyun.lower():
+                        secilenler.add(oyun)
+        if not secilenler:
+            await member.send("Geçerli bir oyun seçimi yapmadınız. Lütfen tekrar deneyin veya bir yetkiliye ulaşın.")
+            return
+        # Rolleri ver
+        verilenler = []
+        for oyun in secilenler:
+            game_info = games_config.get(oyun)
+            if not game_info:
+                continue
+            role = discord.utils.get(member.guild.roles, name=game_info["role"])
+            if role and role not in member.roles:
+                try:
+                    await member.add_roles(role)
+                    verilenler.append(oyun)
+                except Exception as e:
+                    print(f"Rol verilemedi: {oyun} -> {member.name} | Hata: {e}")
+        if verilenler:
             await member.send(
-                "Sunucuya hoş geldin! Oyun rollerini almak için #rol-alma kanalındaki menüyü kullanabilirsin. Eğer bu kanalı göremiyorsan bir yetkiliye ulaş!"
+                "✅ Roller başarıyla verildi!\n" + "\n".join([f"• {oyun}" for oyun in verilenler])
             )
-        except:
-            pass  # DM kapalıysa sessizce geç
+        else:
+            await member.send("Seçtiğiniz oyunların rolleri verilemedi. Lütfen bir yetkiliye ulaşın.")
     except Exception as e:
-        print(f"❌ {member.name} kullanıcısına özel mesaj gönderilemedi. Hata: {e}")
+        print(f"❌ {member.name} kullanıcısına DM gönderilemedi veya işlem başarısız. Hata: {e}")
 
 class GameSelect(discord.ui.Select):
     def __init__(self, member):
