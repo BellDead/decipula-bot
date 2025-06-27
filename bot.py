@@ -31,6 +31,26 @@ def save_config(config):
         print(f"❌ Yapılandırma kaydedilemedi: {e}")
         return False
 
+def load_token():
+    """Token'ı güvenli bir şekilde yükler"""
+    # Önce environment variable'dan dene
+    token = os.getenv('DISCORD_TOKEN')
+    if token:
+        return token
+    
+    # Sonra token.txt dosyasından dene
+    try:
+        with open('token.txt', 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            for line in lines:
+                line = line.strip()
+                if line and not line.startswith('#') and line != 'YOUR_BOT_TOKEN_HERE':
+                    return line
+    except FileNotFoundError:
+        pass
+    
+    return None
+
 # Yapılandırmayı yükle
 config = load_config()
 if config:
@@ -822,10 +842,13 @@ try:
     print("🤖 Bot başlatılıyor...")
     print("📡 Discord sunucularına bağlanılıyor...")
     
-    token = os.getenv('DISCORD_TOKEN')
+    token = load_token()
     if not token:
-        print("❌ DISCORD_TOKEN environment variable bulunamadı!")
-        print("💡 Railway'de DISCORD_TOKEN environment variable'ını ekleyin.")
+        print("❌ Bot token'ı bulunamadı!")
+        print("💡 Çözüm seçenekleri:")
+        print("1. token.txt dosyasına token'ınızı ekleyin")
+        print("2. Environment variable olarak DISCORD_TOKEN ekleyin")
+        print("3. PowerShell'de: $env:DISCORD_TOKEN='your_token'")
         exit(1)
     
     bot.run(token)
