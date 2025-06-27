@@ -159,9 +159,16 @@ class GameSelect(discord.ui.Select):
             if game_name in games_config:
                 game_info = games_config[game_name]
                 role = discord.utils.get(guild.roles, name=game_info["role"])
+                print(f"Rol arandı: {game_info['role']} - Bulundu mu: {bool(role)}")
                 if role and role not in self.member.roles:
-                    await self.member.add_roles(role)
-                    roles_added.append(game_name)
+                    try:
+                        await self.member.add_roles(role)
+                        print(f"Rol verildi: {role.name} -> {self.member.name}")
+                        roles_added.append(game_name)
+                    except Exception as e:
+                        print(f"Rol verilemedi: {role.name} -> {self.member.name} | Hata: {e}")
+                else:
+                    print(f"Rol zaten var veya bulunamadı: {game_info['role']} -> {self.member.name}")
         
         # Başarı mesajı oluştur
         embed = discord.Embed(
