@@ -66,6 +66,16 @@ else:
 # Kullanıcı tercihlerini saklamak için
 user_preferences = {}
 
+# Konsol loglarını saklamak için bir liste
+console_logs = []
+
+# Konsola yazılan her mesajı da bu listeye ekleyecek yardımcı fonksiyon
+def log_console(msg):
+    print(msg)
+    console_logs.append(msg)
+    if len(console_logs) > 20:
+        console_logs.pop(0)
+
 @bot.event
 async def on_ready():
     print(f"🎮 DECIPULA BOT aktif: {bot.user}")
@@ -159,16 +169,16 @@ class GameSelect(discord.ui.Select):
             if game_name in games_config:
                 game_info = games_config[game_name]
                 role = discord.utils.get(guild.roles, name=game_info["role"])
-                print(f"Rol arandı: {game_info['role']} - Bulundu mu: {bool(role)}")
+                log_console(f"Rol arandı: {game_info['role']} - Bulundu mu: {bool(role)}")
                 if role and role not in self.member.roles:
                     try:
                         await self.member.add_roles(role)
-                        print(f"Rol verildi: {role.name} -> {self.member.name}")
+                        log_console(f"Rol verildi: {role.name} -> {self.member.name}")
                         roles_added.append(game_name)
                     except Exception as e:
-                        print(f"Rol verilemedi: {role.name} -> {self.member.name} | Hata: {e}")
+                        log_console(f"Rol verilemedi: {role.name} -> {self.member.name} | Hata: {e}")
                 else:
-                    print(f"Rol zaten var veya bulunamadı: {game_info['role']} -> {self.member.name}")
+                    log_console(f"Rol zaten var veya bulunamadı: {game_info['role']} -> {self.member.name}")
         
         # Başarı mesajı oluştur
         embed = discord.Embed(
@@ -298,7 +308,8 @@ async def help_command(ctx):
             ("!ortak-alanlar-kontrol", "Ortak alanların mevcut olup olmadığını kontrol eder (Admin)"),
             ("!ortak-alanlar-güncelle", "Ortak alanları günceller (Admin)"),
             ("!rolmenusu", "Rol seçme menüsünü gönderir (Admin)"),
-            ("!yuklu-komutlar", "Yüklü komutları listeler")
+            ("!yuklu-komutlar", "Yüklü komutları listeler"),
+            ("!konsol-kontrol", "Son 20 konsol logu gösterir (Admin)")
         ])
     
     for cmd, desc in commands_info:
@@ -824,6 +835,17 @@ def get_welcome_embed():
 async def yuklu_komutlar(ctx):
     komutlar = [c.name for c in bot.commands]
     await ctx.send("Yüklü komutlar: " + ", ".join(komutlar))
+
+# Konsol loglarını Discord'dan gösterecek komut
+def format_logs():
+    if not console_logs:
+        return "Konsolda hiç log yok."
+    return '\n'.join(console_logs[-20:])
+
+@bot.command(name="konsol-kontrol")
+@commands.has_permissions(administrator=True)
+async def konsol_kontrol(ctx):
+    await ctx.send(f"Son 20 konsol logu:\n```\n{format_logs()}\n```")
 
 # Bot token'ını buraya ekleyin
 try:
