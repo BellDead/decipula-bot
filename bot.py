@@ -76,91 +76,18 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
     """
-    Sunucuya yeni birisi katıldığında ona DM yoluyla bilgi, sunucudaki 'rol-alma' kanalına ise oyun seçim menüsü gönderiyoruz.
+    Sunucuya yeni birisi katıldığında, sadece bilgi amaçlı DM gönderilecek. Oyun seçimi için #rol-alma kanalında menü olacak.
     """
     try:
-        # Kullanıcının önceden seçim yapıp yapmadığını kontrol et
-        if member.id in user_preferences:
-            # Önceden seçim yapmışsa rolleri ver
-            selected_games = user_preferences[member.id]
-            roles_added = []
-            
-            for game_name in selected_games:
-                if game_name in games_config:
-                    game_info = games_config[game_name]
-                    role = discord.utils.get(member.guild.roles, name=game_info["role"])
-                    if role and role not in member.roles:
-                        await member.add_roles(role)
-                        roles_added.append(game_name)
-            
-            # Hoş geldin mesajı gönder
-            embed = discord.Embed(
-                title="🎉 Sunucuya Hoş Geldin!",
-                description="Önceden seçtiğiniz oyunlara göre rolleriniz otomatik olarak verildi!",
-                color=0x00FF00
+        # DM'den bilgi mesajı gönder
+        try:
+            await member.send(
+                "Sunucuya hoş geldin! Oyun rollerini almak için #rol-alma kanalındaki menüyü kullanabilirsin. Eğer bu kanalı göremiyorsan bir yetkiliye ulaş!"
             )
-            
-            if roles_added:
-                embed.add_field(
-                    name="✅ Verilen Roller:",
-                    value="\n".join([f"• {game}" for game in roles_added]),
-                    inline=False
-                )
-            
-            embed.add_field(
-                name="🌐 Ortak Alanlar:",
-                value="Tüm üyeler genel sohbet, duyurular, yardım kanallarına erişebilir.",
-                inline=False
-            )
-            
-            try:
-                await member.send(embed=embed)
-            except:
-                pass  # DM kapalıysa sessizce geç
-            
-            # Tercihleri temizle
-            del user_preferences[member.id]
-            
-        else:
-            # İlk kez katılıyorsa bilgi mesajı gönder
-            try:
-                await member.send(
-                    "Sunucuya hoş geldin! Oyunlarını seçmek için #rol-alma kanalındaki menüyü kullanabilirsin. "
-                    "Eğer bu kanalı göremiyorsan bir yetkiliye ulaş!"
-                )
-            except:
-                pass  # DM kapalıysa sessizce geç
-            
-            # Sunucudaki 'rol-alma' kanalına menü gönder
-            welcome_channel = discord.utils.get(member.guild.text_channels, name="rol-alma")
-            if welcome_channel:
-                embed = discord.Embed(
-                    title=settings.get("welcome_message", "🎮 DECIPULA Sunucusuna Hoş Geldin!"),
-                    description="Oynamak istediğin oyunları seç ve ilgili kanallara erişim kazan!",
-                    color=0x7289DA
-                )
-                embed.add_field(
-                    name="📋 Nasıl Çalışır?",
-                    value="1. Aşağıdaki menüden oyunları seç\n2. Seçtiğin oyunlara göre roller verilir\n3. İlgili kanallara erişim kazanırsın",
-                    inline=False
-                )
-                embed.add_field(
-                    name="🌐 Ortak Alanlar",
-                    value="Tüm üyeler genel sohbet, duyurular, yardım kanallarına erişebilir.",
-                    inline=False
-                )
-                embed.set_footer(text="Birden fazla oyun seçebilirsin!")
-                await welcome_channel.send(f"{member.mention} Sunucuya hoş geldin! Oyunlarını seçmek için aşağıdaki menüyü kullanabilirsin:", embed=embed, view=GameSelectView(member))
-            else:
-                # Eğer kanal yoksa DM'de bilgi ver
-                try:
-                    await member.send(
-                        "Sunucuda 'rol-alma' adında bir kanal bulunamadı. Lütfen bir yetkiliye ulaş!"
-                    )
-                except:
-                    pass
+        except:
+            pass  # DM kapalıysa sessizce geç
     except Exception as e:
-        print(f"❌ {member.name} kullanıcısına özel mesaj gönderilemedi veya kanal bulunamadı. Hata: {e}")
+        print(f"❌ {member.name} kullanıcısına özel mesaj gönderilemedi. Hata: {e}")
 
 class GameSelect(discord.ui.Select):
     def __init__(self, member):
@@ -852,6 +779,50 @@ async def update_common_areas(ctx, channel_type: str, *, channel_names: str):
             
     except Exception as e:
         await ctx.send(f"❌ Hata: {e}\n\nKullanım: `!ortak-alanlar-güncelle text genel-sohbet, duyurular, yardım`")
+
+# Sunucu kanalında menüyü gönderen komut
+def get_welcome_embed():
+    embed = discord.Embed(
+        title=settings.get("welcome_message", "🎮 DECIPULA Sunucusuna Hoş Geldin!"),
+        description="Oynamak istediğin oyunları seç ve ilgili kanallara erişim kazan!",
+        color=0x7289DA
+    )
+    embed.add_field(
+        name="📋 Nasıl Çalışır?",
+        value="1. Aşağıdaki menüden oyunları seç\n2. Seçtiğin oyunlara göre roller verilir\n3. İlgili kanallara erişim kazanırsın",
+        inline=False
+    )
+    embed.add_field(
+        name="🌐 Ortak Alanlar",
+        value="Tüm üyeler genel sohbet, duyurular, yardım kanallarına erişebilir.",
+        inline=False
+    )
+    embed.set_footer(text="Birden fazla oyun seçebilirsin!")
+    return embed
+
+@bot.command(name="rolal")
+async def send_role_menu(ctx):
+    """Kullanıcıya oyun seçme menüsünü gösterir (sadece sunucu kanalında)."""
+    if isinstance(ctx.channel, discord.DMChannel):
+        await ctx.send("Bu komut sadece sunucu kanallarında kullanılabilir.")
+        return
+    view = GameSelectView(ctx.author)
+    embed = get_welcome_embed()
+    await ctx.send(embed=embed, view=view)
+
+# Ayrıca, sunucu sahibi isterse #rol-alma kanalına menüyü sabitleyebilir:
+@bot.command(name="rolmenusu")
+@commands.has_permissions(administrator=True)
+async def send_role_menu_to_channel(ctx):
+    """#rol-alma kanalına oyun seçme menüsünü gönderir (admin)."""
+    channel = discord.utils.get(ctx.guild.text_channels, name="rol-alma")
+    if not channel:
+        await ctx.send("'rol-alma' adında bir kanal bulunamadı.")
+        return
+    embed = get_welcome_embed()
+    view = GameSelectView(ctx.author)
+    await channel.send(embed=embed, view=view)
+    await ctx.send("Menü #rol-alma kanalına gönderildi!")
 
 # Bot token'ını buraya ekleyin
 try:
