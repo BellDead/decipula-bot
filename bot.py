@@ -838,6 +838,7 @@ try:
         print("3. PowerShell'de: $env:DISCORD_TOKEN='your_token'")
         exit(1)
     
+    print("Yüklü komutlar:", [c.name for c in bot.commands])
     bot.run(token)
 except discord.LoginFailure:
     print("❌ Bot token'ı geçersiz! Lütfen doğru token'ı kullandığınızdan emin olun.")
