@@ -1,0 +1,70 @@
+{
+    "games": {
+        "Minecraft": {
+            "role": "Minecraft",
+            "text_channels": ["minecraft-chat"],
+            "voice_channels": ["minecraft-voice"],
+            "color": "0x00FF00",
+            "emoji": "⛏️"
+        },
+        "League of Legends": {
+            "role": "LoL",
+            "text_channels": ["lol-chat"],
+            "voice_channels": ["lol-voice"],
+            "color": "0xFF6B35",
+            "emoji": "⚔️"
+        },
+        "Valorant": {
+            "role": "Valorant",
+            "text_channels": ["valorant-chat"],
+            "voice_channels": ["valorant-voice"],
+            "color": "0xFF4655",
+            "emoji": "🎯"
+        },
+        "CS2": {
+            "role": "CS2",
+            "text_channels": ["cs2-chat"],
+            "voice_channels": ["cs2-voice"],
+            "color": "0xFFD700",
+            "emoji": "🔫"
+        },
+        "Fortnite": {
+            "role": "Fortnite",
+            "text_channels": ["fortnite-chat"],
+            "voice_channels": ["fortnite-voice"],
+            "color": "0x00D4FF",
+            "emoji": "🏗️"
+        },
+        "GTA V": {
+            "role": "GTA",
+            "text_channels": ["gta-chat"],
+            "voice_channels": ["gta-voice"],
+            "color": "0xFF6B35",
+            "emoji": "🚗"
+        },
+        "Rocket League": {
+            "role": "RocketLeague",
+            "text_channels": ["rocketleague-chat"],
+            "voice_channels": ["rocketleague-voice"],
+            "color": "0x00FF88",
+            "emoji": "🚗"
+        },
+        "Among Us": {
+            "role": "AmongUs",
+            "text_channels": ["amongus-chat"],
+            "voice_channels": ["amongus-voice"],
+            "color": "0xFF6B9D",
+            "emoji": "👥"
+        }
+    },
+    "common_areas": {
+        "text_channels": ["genel-sohbet", "general", "duyurular", "announcements", "yardım", "help", "memes", "anime-manga", "teknoloji", "spor"],
+        "voice_channels": ["genel-ses", "general-voice", "müzik", "music", "afk", "toplantı", "meeting", "çalışma-odası", "study-room"]
+    },
+    "settings": {
+        "welcome_message": "🎮 DECIPULA Sunucusuna Hoş Geldin!",
+        "bot_prefix": "!",
+        "timeout_seconds": 300,
+        "max_games_per_user": 8
+    }
+} 
