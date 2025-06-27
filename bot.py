@@ -76,14 +76,12 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
     """
-    Sunucuya yeni birisi katıldığında, sadece 'hoş-geldin' kanalına hoş geldin mesajı gönderilecek.
+    Sunucuya yeni birisi katıldığında, kullanıcıya DM'den hoş geldin ve rol-alma kanalına yönlendirme mesajı gönderilecek.
     """
     try:
-        channel = discord.utils.get(member.guild.text_channels, name="hoş-geldin")
-        if channel:
-            await channel.send(f"{member.mention} sunucuya hoş geldin!")
+        await member.send("Merhaba, Decipula'ya hoş geldin! Rollerini almak için #rol-alma kanalına gidebilirsin.")
     except Exception as e:
-        print(f"❌ {member.name} için hoş-geldin mesajı gönderilemedi. Hata: {e}")
+        print(f"❌ {member.name} kullanıcısına DM gönderilemedi. Hata: {e}")
 
 class GameSelect(discord.ui.Select):
     def __init__(self, member):
@@ -786,8 +784,8 @@ async def send_role_menu_to_channel(ctx):
         await ctx.send("'rol-alma' adında bir kanal bulunamadı.")
         return
     embed = discord.Embed(
-        title="🎮 Oyun Rollerini Seç!",
-        description="Aşağıdaki menüden oynamak istediğin oyunları seç. Seçtiğin oyunların rollerini otomatik olarak alacaksın!",
+        title="Hangi oyunları oynamak istersin?",
+        description="Aşağıdaki menüden istediğin oyunları seçebilirsin. Seçtiğin oyunların rolleri otomatik olarak verilecektir.",
         color=0x7289DA
     )
     embed.set_footer(text="Birden fazla oyun seçebilirsin!")
