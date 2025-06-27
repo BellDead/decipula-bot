@@ -330,7 +330,9 @@ async def help_command(ctx):
             ("!rol-kontrol", "Gerekli rolleri kontrol eder (Admin)"),
             ("!kanal-kontrol", "Gerekli kanalları kontrol eder (Admin)"),
             ("!sunucu-ayarla", "Kurulum rehberi gösterir (Admin)"),
-            ("!mevcut-oyunlar", "Mevcut oyun kanallarını analiz eder (Admin)")
+            ("!mevcut-oyunlar", "Mevcut oyun kanallarını analiz eder (Admin)"),
+            ("!ortak-alanlar-kontrol", "Ortak alanların mevcut olup olmadığını kontrol eder (Admin)"),
+            ("!ortak-alanlar-güncelle", "Ortak alanları günceller (Admin)")
         ])
     
     for cmd, desc in commands_info:
@@ -839,4 +841,3 @@ except Exception as e:
     print("2. Bot token'ının doğru olduğundan emin olun")
     print("3. Discord sunucularının erişilebilir olduğunu kontrol edin")
     print("4. Proxy veya VPN kullanıyorsanız kapatmayı deneyin")
-
