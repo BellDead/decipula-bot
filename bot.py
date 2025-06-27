@@ -126,10 +126,15 @@ class GameSelect(discord.ui.Select):
     async def callback(self, interaction):
         selected_games = self.values
         guild = interaction.guild
+        member = interaction.user
+        if guild and not isinstance(member, discord.Member):
+            member = guild.get_member(interaction.user.id)
+        if not member or not isinstance(member, discord.Member):
+            await interaction.response.send_message("❌ Kullanıcı bulunamadı, lütfen tekrar deneyin.", ephemeral=True)
+            return
         
         # DM'den gelen istekleri kontrol et
         if not guild:
-            # DM'den gelen seçimleri kaydet
             user_preferences[self.member.id] = selected_games
             
             # DM'den gelen istek için özel mesaj
@@ -170,15 +175,15 @@ class GameSelect(discord.ui.Select):
                 game_info = games_config[game_name]
                 role = discord.utils.get(guild.roles, name=game_info["role"])
                 log_console(f"Rol arandı: {game_info['role']} - Bulundu mu: {bool(role)}")
-                if role and role not in self.member.roles:
+                if role and role not in member.roles:
                     try:
-                        await self.member.add_roles(role)
-                        log_console(f"Rol verildi: {role.name} -> {self.member.name}")
+                        await member.add_roles(role)
+                        log_console(f"Rol verildi: {role.name} -> {member.name}")
                         roles_added.append(game_name)
                     except Exception as e:
-                        log_console(f"Rol verilemedi: {role.name} -> {self.member.name} | Hata: {e}")
+                        log_console(f"Rol verilemedi: {role.name} -> {member.name} | Hata: {e}")
                 else:
-                    log_console(f"Rol zaten var veya bulunamadı: {game_info['role']} -> {self.member.name}")
+                    log_console(f"Rol zaten var veya bulunamadı: {game_info['role']} -> {member.name}")
         
         # Başarı mesajı oluştur
         embed = discord.Embed(
@@ -800,9 +805,11 @@ async def update_common_areas(ctx, channel_type: str, *, channel_names: str):
         await ctx.send(f"❌ Hata: {e}\n\nKullanım: `!ortak-alanlar-güncelle text genel-sohbet, duyurular, yardım`")
 
 @bot.command(name="roller")
-@commands.has_permissions(administrator=True)
 async def roller_command(ctx):
-    print("DEBUG: roller komutu çağrıldı")
+    # Sadece 'rol-alma' kanalında çalışsın
+    if ctx.channel.name != "rol-alma":
+        await ctx.send("❌ Bu komut sadece #rol-alma kanalında kullanılabilir.")
+        return
     try:
         embed = discord.Embed(
             title="Hangi oyunları oynamak istersin?",
@@ -812,7 +819,6 @@ async def roller_command(ctx):
         embed.set_footer(text="Birden fazla oyun seçebilirsin!")
         view = GameSelectView(ctx.author)
         await ctx.send(embed=embed, view=view)
-        print("DEBUG: Menü gönderildi!")
     except Exception as e:
         print(f"❌ roller komutunda hata: {e}")
 
