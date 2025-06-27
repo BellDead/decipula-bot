@@ -204,7 +204,7 @@ class GameSelect(discord.ui.Select):
 
 class GameSelectView(discord.ui.View):
     def __init__(self, member):
-        timeout = settings.get("timeout_seconds", 300)
+        timeout = 300
         super().__init__(timeout=timeout)
         self.add_item(GameSelect(member))
 
