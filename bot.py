@@ -776,10 +776,10 @@ async def update_common_areas(ctx, channel_type: str, *, channel_names: str):
     except Exception as e:
         await ctx.send(f"❌ Hata: {e}\n\nKullanım: `!ortak-alanlar-güncelle text genel-sohbet, duyurular, yardım`")
 
-@bot.command(name="rolmenusu")
+@bot.command(name="testmenu")
 @commands.has_permissions(administrator=True)
-async def send_role_menu_to_channel(ctx):
-    print("DEBUG: !rolmenusu komutu çağrıldı")
+async def test_menu_command(ctx):
+    print("DEBUG: testmenu komutu çağrıldı")
     try:
         channel = discord.utils.get(ctx.guild.text_channels, name="rol-alma")
         if not channel:
@@ -797,7 +797,7 @@ async def send_role_menu_to_channel(ctx):
         await ctx.send("Menü #rol-alma kanalına gönderildi!")
         print("DEBUG: Menü gönderildi!")
     except Exception as e:
-        print(f"❌ !rolmenusu komutunda hata: {e}")
+        print(f"❌ testmenu komutunda hata: {e}")
 
 # Sunucu kanalında menüyü gönderen komut
 def get_welcome_embed():
