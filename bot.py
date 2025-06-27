@@ -291,7 +291,8 @@ async def help_command(ctx):
             ("!sunucu-ayarla", "Kurulum rehberi gösterir (Admin)"),
             ("!mevcut-oyunlar", "Mevcut oyun kanallarını analiz eder (Admin)"),
             ("!ortak-alanlar-kontrol", "Ortak alanların mevcut olup olmadığını kontrol eder (Admin)"),
-            ("!ortak-alanlar-güncelle", "Ortak alanları günceller (Admin)")
+            ("!ortak-alanlar-güncelle", "Ortak alanları günceller (Admin)"),
+            ("!rolmenusu", "Rol seçme menüsünü gönderir (Admin)")
         ])
     
     for cmd, desc in commands_info:
@@ -775,6 +776,24 @@ async def update_common_areas(ctx, channel_type: str, *, channel_names: str):
             
     except Exception as e:
         await ctx.send(f"❌ Hata: {e}\n\nKullanım: `!ortak-alanlar-güncelle text genel-sohbet, duyurular, yardım`")
+
+@bot.command(name="rolmenusu")
+@commands.has_permissions(administrator=True)
+async def send_role_menu_to_channel(ctx):
+    """#rol-alma kanalına oyun seçme menüsünü gönderir (admin)."""
+    channel = discord.utils.get(ctx.guild.text_channels, name="rol-alma")
+    if not channel:
+        await ctx.send("'rol-alma' adında bir kanal bulunamadı.")
+        return
+    embed = discord.Embed(
+        title="🎮 Oyun Rollerini Seç!",
+        description="Aşağıdaki menüden oynamak istediğin oyunları seç. Seçtiğin oyunların rollerini otomatik olarak alacaksın!",
+        color=0x7289DA
+    )
+    embed.set_footer(text="Birden fazla oyun seçebilirsin!")
+    view = GameSelectView(ctx.author)
+    await channel.send(embed=embed, view=view)
+    await ctx.send("Menü #rol-alma kanalına gönderildi!")
 
 # Sunucu kanalında menüyü gönderen komut
 def get_welcome_embed():
