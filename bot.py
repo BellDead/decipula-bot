@@ -219,9 +219,14 @@ class GameSelect(discord.ui.Select):
 
 class GameSelectView(discord.ui.View):
     def __init__(self, member):
-        timeout = 300
+        timeout = 900  # 15 dakika
         super().__init__(timeout=timeout)
         self.add_item(GameSelect(member))
+
+    async def on_timeout(self):
+        for item in self.children:
+            if isinstance(item, discord.ui.Select):
+                item.disabled = True
 
 # Kullanıcı komutları
 @bot.command(name="oyunlar")
