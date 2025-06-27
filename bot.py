@@ -76,7 +76,7 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
     """
-    Sunucuya yeni birisi katıldığında ona DM yoluyla oyun seçim menüsü gönderiyoruz.
+    Sunucuya yeni birisi katıldığında ona DM yoluyla bilgi, sunucudaki 'rol-alma' kanalına ise oyun seçim menüsü gönderiyoruz.
     """
     try:
         # Kullanıcının önceden seçim yapıp yapmadığını kontrol et
@@ -122,29 +122,45 @@ async def on_member_join(member):
             del user_preferences[member.id]
             
         else:
-            # İlk kez katılıyorsa seçim menüsü gönder
-            view = GameSelectView(member)
-            embed = discord.Embed(
-                title=settings.get("welcome_message", "🎮 DECIPULA Sunucusuna Hoş Geldin!"),
-                description="Oynamak istediğin oyunları seç ve ilgili kanallara erişim kazan!",
-                color=0x7289DA
-            )
-            embed.add_field(
-                name="📋 Nasıl Çalışır?",
-                value="1. Aşağıdaki menüden oyunları seç\n2. Seçtiğin oyunlara göre roller verilir\n3. İlgili kanallara erişim kazanırsın",
-                inline=False
-            )
-            embed.add_field(
-                name="🌐 Ortak Alanlar",
-                value="Tüm üyeler genel sohbet, duyurular, yardım kanallarına erişebilir.",
-                inline=False
-            )
-            embed.set_footer(text="Birden fazla oyun seçebilirsin!")
+            # İlk kez katılıyorsa bilgi mesajı gönder
+            try:
+                await member.send(
+                    "Sunucuya hoş geldin! Oyunlarını seçmek için #rol-alma kanalındaki menüyü kullanabilirsin. "
+                    "Eğer bu kanalı göremiyorsan bir yetkiliye ulaş!"
+                )
+            except:
+                pass  # DM kapalıysa sessizce geç
             
-            await member.send(embed=embed, view=view)
-            
+            # Sunucudaki 'rol-alma' kanalına menü gönder
+            welcome_channel = discord.utils.get(member.guild.text_channels, name="rol-alma")
+            if welcome_channel:
+                embed = discord.Embed(
+                    title=settings.get("welcome_message", "🎮 DECIPULA Sunucusuna Hoş Geldin!"),
+                    description="Oynamak istediğin oyunları seç ve ilgili kanallara erişim kazan!",
+                    color=0x7289DA
+                )
+                embed.add_field(
+                    name="📋 Nasıl Çalışır?",
+                    value="1. Aşağıdaki menüden oyunları seç\n2. Seçtiğin oyunlara göre roller verilir\n3. İlgili kanallara erişim kazanırsın",
+                    inline=False
+                )
+                embed.add_field(
+                    name="🌐 Ortak Alanlar",
+                    value="Tüm üyeler genel sohbet, duyurular, yardım kanallarına erişebilir.",
+                    inline=False
+                )
+                embed.set_footer(text="Birden fazla oyun seçebilirsin!")
+                await welcome_channel.send(f"{member.mention} Sunucuya hoş geldin! Oyunlarını seçmek için aşağıdaki menüyü kullanabilirsin:", embed=embed, view=GameSelectView(member))
+            else:
+                # Eğer kanal yoksa DM'de bilgi ver
+                try:
+                    await member.send(
+                        "Sunucuda 'rol-alma' adında bir kanal bulunamadı. Lütfen bir yetkiliye ulaş!"
+                    )
+                except:
+                    pass
     except Exception as e:
-        print(f"❌ {member.name} kullanıcısına özel mesaj gönderilemedi. Hata: {e}")
+        print(f"❌ {member.name} kullanıcısına özel mesaj gönderilemedi veya kanal bulunamadı. Hata: {e}")
 
 class GameSelect(discord.ui.Select):
     def __init__(self, member):
@@ -841,6 +857,12 @@ async def update_common_areas(ctx, channel_type: str, *, channel_names: str):
 try:
     print("🤖 Bot başlatılıyor...")
     print("📡 Discord sunucularına bağlanılıyor...")
+    
+    print("Çalışılan dizin:", os.getcwd())
+    print("token.txt var mı:", os.path.exists('token.txt'))
+    if os.path.exists('token.txt'):
+        with open('token.txt', 'r', encoding='utf-8') as f:
+            print("token.txt içeriği:", f.read())
     
     token = load_token()
     if not token:
