@@ -290,7 +290,8 @@ async def help_command(ctx):
             ("!mevcut-oyunlar", "Mevcut oyun kanallarını analiz eder (Admin)"),
             ("!ortak-alanlar-kontrol", "Ortak alanların mevcut olup olmadığını kontrol eder (Admin)"),
             ("!ortak-alanlar-güncelle", "Ortak alanları günceller (Admin)"),
-            ("!rolmenusu", "Rol seçme menüsünü gönderir (Admin)")
+            ("!rolmenusu", "Rol seçme menüsünü gönderir (Admin)"),
+            ("!yuklu-komutlar", "Yüklü komutları listeler")
         ])
     
     for cmd, desc in commands_info:
@@ -817,6 +818,11 @@ def get_welcome_embed():
     )
     embed.set_footer(text="Birden fazla oyun seçebilirsin!")
     return embed
+
+@bot.command(name="yuklu-komutlar")
+async def yuklu_komutlar(ctx):
+    komutlar = [c.name for c in bot.commands]
+    await ctx.send("Yüklü komutlar: " + ", ".join(komutlar))
 
 # Bot token'ını buraya ekleyin
 try:
