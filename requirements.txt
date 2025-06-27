@@ -1,6 +1,2 @@
-<<<<<<< HEAD
-discord.py==2.3.2
-=======
-discord.py==2.3.2
->>>>>>> 62795702bea0000428067584174e9854641093ed
-certifi==2023.11.17 
+discord.py
+certifi 
